@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "wv2app (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "wv2app (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
