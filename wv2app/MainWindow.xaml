@@ -9,7 +9,8 @@
     mc:Ignorable="d"
     Title="wv2app">
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
-    </StackPanel>
+    <Grid Background="Bisque">
+        <WebView2 x:Name="myWebView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DefaultBackgroundColor="Aquamarine" />
+        <!--<Button x:Name="myButton" Click="myButton_Click">Click Me</Button>-->
+    </Grid>
 </Window>
