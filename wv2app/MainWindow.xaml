@@ -9,7 +9,7 @@
     mc:Ignorable="d"
     Title="wv2app">
 
-    <Grid Background="Bisque">
+    <Grid Background="Bisque" Padding="-10">
         <WebView2 x:Name="myWebView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DefaultBackgroundColor="Aquamarine" />
         <!--<Button x:Name="myButton" Click="myButton_Click">Click Me</Button>-->
     </Grid>
