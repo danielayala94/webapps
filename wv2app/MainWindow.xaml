@@ -9,8 +9,31 @@
     mc:Ignorable="d"
     Title="wv2app">
 
-    <Grid Background="Bisque" Padding="-10">
-        <WebView2 x:Name="myWebView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DefaultBackgroundColor="Aquamarine" />
-        <!--<Button x:Name="myButton" Click="myButton_Click">Click Me</Button>-->
+    <Grid Background="Bisque" Padding="0">
+        <Grid>
+            <!-- Define Row Definitions: Title Bar (Fixed Height) + WebView2 (Fills Remaining Space) -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <!-- Title Bar Height -->
+                <RowDefinition Height="*"/>
+                <!-- WebView2 Fills Rest -->
+            </Grid.RowDefinitions>
+
+            <!-- Fake Title Bar (WebView2 loading local HTML) -->
+            <WebView2 x:Name="TitleBarWebView"
+                  Source="ms-appx-web:///Assets/titlebar.html"
+                  Grid.Row="0"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  DefaultBackgroundColor="Transparent"
+                  IsHitTestVisible="True"/>
+
+            <!-- WebView2 for Loading Web Pages -->
+            <WebView2 x:Name="WebView"
+                  Grid.Row="1"
+                  DefaultBackgroundColor="Aquamarine"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"/>
+        </Grid>
     </Grid>
 </Window>

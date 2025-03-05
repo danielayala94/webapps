@@ -69,7 +69,7 @@ namespace wv2app
 
         private async void InitializeWebView()
         {
-            await myWebView.EnsureCoreWebView2Async();
+            await TitleBarWebView.EnsureCoreWebView2Async();
 
             string htmlContent = @"
             <html>
@@ -79,21 +79,28 @@ namespace wv2app
                 <title>Custom Title Bar</title>
 
                 <style> 
-                    body { 
-                        font-family: Comic Sans MS, sans-serif; 
-                        text-align: center;
-                    } 
+                    /* Ensure no scrollbar issues */
+                    html, body {
+                        margin: 0;
+                        padding: 0;
+                        width: 100%;
+                        height: 50px;
+                        overflow: hidden; /* Prevents scrolling */
+                        background: transparent;
+                    }
 
                     #titleBar {
+                        font-family: Comic Sans MS, sans-serif; 
                         width: 100%;
                         height: 50px;
                         background: #0078D4;
                         color: white;
                         display: flex;
                         align-items: center;
+                        justify-content: space-between;
                         padding: 0 10px;
                         -webkit-app-region: drag; /* Enables dragging */
-                        position: relative;
+                        box-sizing: border-box;
                     }
 
                     #titleSearch {
@@ -103,11 +110,29 @@ namespace wv2app
                         -webkit-app-region: no-drag; /* Allows interaction */
                     }
 
-                    #titleButtons {
-                        margin-left: auto;
-                        display: flex;
+                    /* Search input styling */
+                    #searchInput {
+                        width: 200px;
+                        padding: 5px;
+                        border: none;
+                        border-radius: 5px 0 0 5px;
+                        font-size: 14px;
+                        outline: none;
                     }
 
+                    /* Search button styling */
+                    #searchButton {
+                        background: #005a9e;
+                        color: white;
+                        border: none;
+                        padding: 6px 10px;
+                        border-radius: 0 5px 5px 0;
+                        cursor: pointer;
+                    }
+
+                    #searchButton:hover {
+                        background: #0078D4;
+                    }
                 </style>
             </head>
             <body>
@@ -120,13 +145,7 @@ namespace wv2app
                     </div>
                 </div>
 
-                <h1>My first WinUI 3 WebView2 App</h1>
-                <button onclick='showMessage()'>Click Me</button>
                 <script>
-                    function showMessage() {
-                        window.chrome.webview.postMessage('Hello from JavaScript!');
-                    }
-
                     function performSearch() {
                         let query = document.getElementById(""searchInput"").value;
                         if (query.trim() !== """") {
@@ -137,9 +156,29 @@ namespace wv2app
             </body>
             </html>";
 
-            myWebView.NavigateToString(htmlContent);
+            TitleBarWebView.NavigateToString(htmlContent);
+            TitleBarWebView.WebMessageReceived += WebView_WebMessageReceived;
 
-            myWebView.WebMessageReceived += WebView_WebMessageReceived;
+            await WebView.EnsureCoreWebView2Async();
+            string htmlContentMainWebView = @"
+                <style> body { 
+                    font-family: Comic Sans MS, sans-serif; 
+                    text-align: center;
+                    padding-top: 50px; /* Adjust as needed */
+                } </style>
+
+                <h1>My first WinUI 3 WebView2 App</h1>
+                <button onclick='showMessage()'>Click Me</button>
+
+                <script>
+                    function showMessage() {
+                        window.chrome.webview.postMessage('Hello from JavaScript!');
+                    }
+                </script>
+            ";
+
+            WebView.NavigateToString(htmlContentMainWebView);
+            WebView.WebMessageReceived += WebView_WebMessageReceived;
         }
 
         private void WebView_WebMessageReceived(WebView2 sender, CoreWebView2WebMessageReceivedEventArgs args)
@@ -161,93 +200,7 @@ namespace wv2app
                 string searchQuery = message.Substring(7);
                 Debug.WriteLine("User searched for: " + searchQuery);
 
-                // Boilerplate, I know, but first iteration:
-                string htmlContent = @"
-                <html>
-                <head>
-                    <meta charset=""UTF-8"">
-                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                    <title>Custom Title Bar</title>
-
-                    <style> 
-                        body { 
-                            font-family: Comic Sans MS, sans-serif; 
-                            text-align: center;
-                        } 
-
-                        #titleBar {
-                            width: 100%;
-                            height: 50px;
-                            background: #0078D4;
-                            color: white;
-                            display: flex;
-                            align-items: center;
-                            padding: 0 10px;
-                            -webkit-app-region: drag; /* Enables dragging */
-                            position: relative;
-                        }
-
-                        #titleSearch {
-                            flex: 2;
-                            display: flex;
-                            justify-content: center;
-                            -webkit-app-region: no-drag; /* Allows interaction */
-                        }
-
-                        #titleButtons {
-                            margin-left: auto;
-                            display: flex;
-                        }
-
-                        /* WebView2 Container */
-                        #webContainer {
-                            position: absolute;
-                            top: 50px; /* Below the title bar */
-                            left: 0;
-                            width: 100%;
-                            height: calc(100vh - 50px); /* Fill remaining space */
-                            overflow: hidden;
-                        }
-
-                        #webView {
-                            width: 100%;
-                            height: 100%;
-                            border: none;
-                        }
-
-                    </style>
-                </head>
-                <body>
-                    <div id=""titleBar"">
-                        <span>My first WebView2 app 😊</span>
-
-                        <div id=""titleSearch"">
-                            <input type=""text"" id=""searchInput"" placeholder=""Search..."" />
-                            <button id=""searchButton"" onclick=""performSearch()"">🔍</button>
-                        </div>
-                    </div>
-
-                    <!-- WebView2 Container -->
-                    <div id=""webContainer"">
-                        <webview id=""webView"" src=""https://www.bing.com/search?q=" + searchQuery + @"""></webview>
-                    </div>
-                    <script>
-                        function showMessage() {
-                            window.chrome.webview.postMessage('Hello from JavaScript!');
-                        }
-
-                        function performSearch() {
-                            let query = document.getElementById(""searchInput"").value;
-                            if (query.trim() !== """") {
-                                window.chrome.webview.postMessage(""search:"" + query);
-                            }
-                        }
-                    </script>
-                </body>
-                </html>";
-
-                myWebView.NavigateToString(htmlContent);
-                myWebView.WebMessageReceived += WebView_WebMessageReceived;
+                WebView.Source = new Uri("https://www.bing.com/search?q=" + searchQuery);
             }
             else if (message.Equals("Hello from JavaScript!"))
             {
